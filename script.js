@@ -37,7 +37,8 @@ window.addEventListener("scroll", () => {
 // QUERY FORM → GOOGLE SHEETS
 // ==========================================
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyzDOh3T5mTt_qEITySQbKNEJZYqy8LyvwjZzfRStWJvK2RfFpxb6sNoIkIS52J84zSng/exec";
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxLLSG_duk3vzuRiYk0_GKfdkOtYQIqlDzJ3R4p-18j7GU3XCjW6tiVe0X0Xfq7wZNOOA/exec';
+
 
 const form = document.getElementById("queryForm");
 const statusEl = document.getElementById("queryStatus");
