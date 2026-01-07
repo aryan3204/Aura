@@ -1,0 +1,21 @@
+/* INVESTOR CHARTS */
+.counter-val { font-size: 3rem; font-weight: 700; margin: 10px 0; }
+.text-red { color: #ff6b6b; }
+
+.profit-card { border-color: var(--gold); animation: goldPulse 3s infinite; }
+@keyframes goldPulse {
+    0% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.1); }
+    50% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.4); }
+    100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.1); }
+}
+
+.bar-chart { margin-top: 20px; }
+.bar-row { display: flex; align-items: center; margin-bottom: 15px; }
+.label { width: 50px; font-size: 0.8rem; color: #ccc; }
+.val { margin-left: 10px; font-size: 0.9rem; color: var(--gold); font-weight: 700; }
+
+.bar {
+    height: 12px; background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+    border-radius: 6px; width: 0; transition: width 1.5s ease-out;
+}
+.reveal.visible .bar { width: var(--w); } 

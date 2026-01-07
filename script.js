@@ -1,70 +1,81 @@
-// ===================================================
-// QUERY FORM → EMAIL (FormSubmit.co)
-// ===================================================
+/* AURA 2026 LOGIC */
 
+// 1. SCROLL REVEAL
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            
+            // Trigger counters
+            if(entry.target.querySelector('.count')) startCounters(entry.target);
+            
+            // Trigger bars (set width from inline style logic if needed, or CSS handles it)
+            // Ideally, CSS transition handles width if class is added
+            
+            observer.unobserve(entry.target);
+        }
+    });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.reveal, .fade-up').forEach((el) => observer.observe(el));
+
+// 2. COUNTERS
+function startCounters(section) {
+    const counters = section.querySelectorAll('.count');
+    counters.forEach(counter => {
+        const target = +counter.getAttribute('data-target');
+        const increment = target / 50;
+        const updateCount = () => {
+            const count = +counter.innerText;
+            if (count < target) {
+                counter.innerText = Math.ceil(count + increment);
+                setTimeout(updateCount, 20);
+            } else {
+                counter.innerText = target;
+            }
+        };
+        updateCount();
+    });
+}
+
+// 3. FORM SUBMIT
 const form = document.getElementById('queryForm');
-const submitBtn = document.getElementById('submitBtn');
-const successMessage = document.getElementById('successMessage');
-
-const FORMSUBMIT_URL = 'https://formsubmit.co/ajax/g.aryan4199@gmail.com';
+const FORMSUBMIT_URL = "https://formsubmit.co/ajax/g.aryan4199@gmail.com";
 
 if (form) {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        const btn = document.getElementById('submitBtn');
+        const msg = document.getElementById('successMessage');
+        const originalText = btn.textContent;
+        const inputs = form.querySelectorAll('input, select, textarea');
+        const formData = { _subject: "New Aura Inquiry", _captcha: "false" };
         
-        const name = document.getElementById('name').value;
-        const email = document.getElementById('email').value;
-        const message = document.getElementById('message').value;
-        
-        // Validation
-        if (!name.trim() || !email.trim() || !message.trim()) {
-            alert('Please fill in all fields');
-            return;
-        }
-        
-        // Show loading state
-        submitBtn.textContent = 'Submitting...';
-        submitBtn.disabled = true;
-        successMessage.style.display = 'none';
-        
+        inputs.forEach(input => {
+            if(input.placeholder) formData[input.placeholder] = input.value;
+            if(input.tagName === 'SELECT') formData['Category'] = input.value;
+            if(input.tagName === 'TEXTAREA') formData['Message'] = input.value;
+        });
+
+        btn.textContent = 'Sending...';
+        btn.disabled = true;
+
         try {
-            const response = await fetch(FORMSUBMIT_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    name: name,
-                    email: email,
-                    message: message,
-                    _captcha: false,
-                    _subject: 'New Query from Aura 2026'
-                })
+            const res = await fetch(FORMSUBMIT_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Accept": "application/json" },
+                body: JSON.stringify(formData)
             });
-            
-            if (response.ok) {
-                // Clear form
+            if (res.ok) {
+                btn.textContent = originalText;
+                btn.disabled = false;
                 form.reset();
-                
-                // Show success message
-                successMessage.style.display = 'block';
-                submitBtn.textContent = 'SUBMIT QUERY';
-                submitBtn.disabled = false;
-                
-                // Hide success message after 5 seconds
-                setTimeout(() => {
-                    successMessage.style.display = 'none';
-                }, 5000);
-            } else {
-                alert('Error submitting form. Please try again.');
-                submitBtn.textContent = 'SUBMIT QUERY';
-                submitBtn.disabled = false;
+                msg.style.display = 'block';
+                setTimeout(() => msg.style.display = 'none', 5000);
             }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Error submitting form. Please try again.');
-            submitBtn.textContent = 'SUBMIT QUERY';
-            submitBtn.disabled = false;
+        } catch (err) {
+            btn.textContent = "Error";
+            console.error(err);
         }
     });
 }
