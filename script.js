@@ -1,100 +1,70 @@
-// Intersection Observer for scroll reveal
-const observer = new IntersectionObserver(
-  entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("visible");
-        observer.unobserve(entry.target);
-      }
-    });
-  },
-  { threshold: 0.18 }
-);
+// ===================================================
+// QUERY FORM → EMAIL (FormSubmit.co)
+// ===================================================
 
-document.querySelectorAll(".reveal").forEach(el => observer.observe(el));
+const form = document.getElementById('queryForm');
+const submitBtn = document.getElementById('submitBtn');
+const successMessage = document.getElementById('successMessage');
 
-// Smooth scroll for internal anchors
-document.querySelectorAll('a[href^="#"]').forEach(link => {
-  link.addEventListener("click", e => {
-    const targetId = link.getAttribute("href").slice(1);
-    const target = document.getElementById(targetId);
-    if (!target) return;
-    e.preventDefault();
-    target.scrollIntoView({ behavior: "smooth", block: "start" });
-  });
-});
-
-// Subtle parallax on hero content
-window.addEventListener("scroll", () => {
-  const scrolled = window.pageYOffset || document.documentElement.scrollTop;
-  const hero = document.querySelector(".hero-content");
-  if (hero) {
-    hero.style.transform = `translateY(${scrolled * 0.08}px)`;
-  }
-});
-
-// ==========================================
-// QUERY FORM → GOOGLE SHEETS
-// ==========================================
-
-const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxLLSG_duk3vzuRiYk0_GKfdkOtYQIqlDzJ3R4p-18j7GU3XCjW6tiVe0X0Xfq7wZNOOA/exec';
-
-
-const form = document.getElementById("queryForm");
-const statusEl = document.getElementById("queryStatus");
+const FORMSUBMIT_URL = 'https://formsubmit.co/ajax/g.aryan4199@gmail.com';
 
 if (form) {
-  form.addEventListener("submit", async e => {
-    e.preventDefault();
-    
-    // Show sending status
-    statusEl.textContent = "Sending...";
-    statusEl.style.color = "#ffa500";
-    
-    // Get form values
-    const name = document.getElementById("nameInput").value.trim();
-    const email = document.getElementById("emailInput").value.trim();
-    const message = document.getElementById("messageInput").value.trim();
-
-    // Validate
-    if (!name || !email || !message) {
-      statusEl.textContent = "Please fill all fields.";
-      statusEl.style.color = "#ff6b6b";
-      return;
-    }
-
-    try {
-      // Send to Apps Script
-      const response = await fetch(SCRIPT_URL, {
-        method: "POST",
-        body: new URLSearchParams({
-          name: name,
-          email: email,
-          message: message
-        })
-      });
-
-      // Check if response is OK
-      if (response.ok) {
-        // Success!
-        statusEl.textContent = "✓ Thanks for reaching out. We'll get back to you soon.";
-        statusEl.style.color = "#00ff88";
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
         
-        // Reset form
-        form.reset();
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const message = document.getElementById('message').value;
         
-        // Clear message after 5 seconds
-        setTimeout(() => {
-          statusEl.textContent = "";
-        }, 5000);
-      } else {
-        statusEl.textContent = "Error submitting. Please try again.";
-        statusEl.style.color = "#ff6b6b";
-      }
-    } catch (err) {
-      console.error("Fetch error:", err);
-      statusEl.textContent = "Network error. Please check your connection.";
-      statusEl.style.color = "#ff6b6b";
-    }
-  });
+        // Validation
+        if (!name.trim() || !email.trim() || !message.trim()) {
+            alert('Please fill in all fields');
+            return;
+        }
+        
+        // Show loading state
+        submitBtn.textContent = 'Submitting...';
+        submitBtn.disabled = true;
+        successMessage.style.display = 'none';
+        
+        try {
+            const response = await fetch(FORMSUBMIT_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: name,
+                    email: email,
+                    message: message,
+                    _captcha: false,
+                    _subject: 'New Query from Aura 2026'
+                })
+            });
+            
+            if (response.ok) {
+                // Clear form
+                form.reset();
+                
+                // Show success message
+                successMessage.style.display = 'block';
+                submitBtn.textContent = 'SUBMIT QUERY';
+                submitBtn.disabled = false;
+                
+                // Hide success message after 5 seconds
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 5000);
+            } else {
+                alert('Error submitting form. Please try again.');
+                submitBtn.textContent = 'SUBMIT QUERY';
+                submitBtn.disabled = false;
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error submitting form. Please try again.');
+            submitBtn.textContent = 'SUBMIT QUERY';
+            submitBtn.disabled = false;
+        }
+    });
 }
